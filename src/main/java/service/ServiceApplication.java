@@ -2,6 +2,7 @@ package service;
 
 import com.sun.jersey.api.container.grizzly2.GrizzlyServerFactory;
 import com.sun.jersey.api.core.ClassNamesResourceConfig;
+import com.sun.jersey.api.core.PackagesResourceConfig;
 import com.sun.jersey.api.core.ResourceConfig;
 import org.glassfish.grizzly.http.server.HttpServer;
 
@@ -13,7 +14,8 @@ public class ServiceApplication {
     public static void main(String[] args) {
         HttpServer server = null;
         try {
-            ResourceConfig config = new ClassNamesResourceConfig(FlightResource.class);
+            ResourceConfig config =
+                    new PackagesResourceConfig(FlightResource.class.getPackage().getName());
             server = GrizzlyServerFactory.createHttpServer(SERVICE_URI, config);
             server.start();
             System.in.read();

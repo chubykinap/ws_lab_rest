@@ -1,5 +1,7 @@
 package service;
 
+import service.Exceptions.SQLTransactionException;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,11 +12,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DbMethods {
-    public List<Flight> getFlights(String arg) {
+    public List<Flight> getFlights(String arg) throws SQLTransactionException {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         List<Flight> flights = new ArrayList<>();
 
@@ -33,16 +33,16 @@ public class DbMethods {
                         arrival_city, aircraft_type));
             }
         } catch (SQLException e) {
-            Logger.getLogger(DbMethods.class.getName()).log(Level.SEVERE, null, e);
+            throw new SQLTransactionException(e.getMessage());
         }
         return flights;
     }
 
-    public Flight getFlight(int id){
+    public Flight getFlight(int id) throws SQLTransactionException {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         try (Connection connection = DbConnection.getConnection()) {
             Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("select * from flights where flight_id = '" + id +"';");
+            ResultSet rs = statement.executeQuery("select * from flights where flight_id = '" + id + "';");
             if (rs.next()) {
                 String flight_number = rs.getString("flight_number");
                 Date departure_date = rs.getDate("departure_date");
@@ -52,15 +52,13 @@ public class DbMethods {
 
                 return new Flight(flight_number, format.format(departure_date), departure_city,
                         arrival_city, aircraft_type);
-            }
-            else return null;
+            } else return null;
         } catch (SQLException e) {
-            Logger.getLogger(DbMethods.class.getName()).log(Level.SEVERE, null, e);
+            throw new SQLTransactionException(e.getMessage());
         }
-        return null;
     }
 
-    public int addFlight(String values) {
+    public int addFlight(String values) throws SQLTransactionException {
         int id;
         try (Connection connection = DbConnection.getConnection()) {
             Statement statement = connection.createStatement();
@@ -77,12 +75,11 @@ public class DbMethods {
                 throw new SQLException("Запись не найдена");
             return id;
         } catch (SQLException e) {
-            Logger.getLogger(DbMethods.class.getName()).log(Level.SEVERE, null, e);
-            return -1;
+            throw new SQLTransactionException(e.getMessage());
         }
     }
 
-    public String changeFlight(String values) {
+    public String changeFlight(String values) throws SQLTransactionException {
         try (Connection connection = DbConnection.getConnection()) {
             Statement statement = connection.createStatement();
             String sql = "update flights set ("
@@ -92,19 +89,17 @@ public class DbMethods {
             statement.executeUpdate(sql);
             return "completed";
         } catch (SQLException e) {
-            Logger.getLogger(DbMethods.class.getName()).log(Level.SEVERE, null, e);
-            return "error";
+            throw new SQLTransactionException(e.getMessage());
         }
     }
 
-    public String deleteFlight(int id) {
+    public String deleteFlight(int id) throws SQLTransactionException {
         try (Connection connection = DbConnection.getConnection()) {
             Statement statement = connection.createStatement();
             statement.executeUpdate("delete from flights where flight_id = " + id + ";");
             return "completed";
         } catch (SQLException e) {
-            Logger.getLogger(DbMethods.class.getName()).log(Level.SEVERE, null, e);
-            return "error";
+            throw new SQLTransactionException(e.getMessage());
         }
     }
 
