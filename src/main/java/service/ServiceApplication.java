@@ -17,9 +17,9 @@ public class ServiceApplication {
             server = GrizzlyServerFactory.createHttpServer(SERVICE_URI, config);
             server.start();
             System.in.read();
-            stopServer(server);
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
             stopServer(server);
         }
     }
