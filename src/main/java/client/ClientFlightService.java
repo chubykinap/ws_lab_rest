@@ -11,6 +11,8 @@ import java.util.List;
 public class ClientFlightService {
     private static final String URI = "http://localhost:8080/flights";
     private final Client client;
+    private final String USER = "user";
+    private final String PASSWORD = "pass";
 
     public ClientFlightService(Client client) {
         this.client = client;
@@ -34,7 +36,8 @@ public class ClientFlightService {
         WebResource resource = client.resource(URI + "/addFlight");
         ClientResponse response = resource
                 .queryParam("request", request)
-                .get(ClientResponse.class);
+                .header("Authentication", encodeUserData())
+                .post(ClientResponse.class);
         if (response.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
             throw new Exception(String.valueOf(response.getStatus()));
         }
@@ -46,7 +49,8 @@ public class ClientFlightService {
         ClientResponse response = resource
                 .queryParam("request", request)
                 .accept(MediaType.APPLICATION_JSON)
-                .get(ClientResponse.class);
+                .header("Authentication", encodeUserData())
+                .post(ClientResponse.class);
         if (response.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
             throw new Exception(String.valueOf(response.getStatus()));
         }
@@ -56,7 +60,8 @@ public class ClientFlightService {
     public void deleteFlight(int id) throws Exception {
         WebResource resource = client.resource(URI + "/deleteFlight/" + id);
         ClientResponse response = resource
-                .get(ClientResponse.class);
+                .header("Authentication", encodeUserData())
+                .delete(ClientResponse.class);
         if (response.getStatus() != ClientResponse.Status.OK.getStatusCode()) {
             throw new Exception(String.valueOf(response.getStatus()));
         }
@@ -67,5 +72,11 @@ public class ClientFlightService {
         for (Flight flight : flights) {
             System.out.println(flight.toString());
         }
+    }
+
+    private String encodeUserData() {
+        String user_pass = USER + ":" + PASSWORD;
+        return "Basic "
+                + java.util.Base64.getEncoder().encodeToString(user_pass.getBytes());
     }
 }

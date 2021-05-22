@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<web-app>
+    <security-constraint>
+        <web-resource-collection>
+            <url-pattern>/flights/*</url-pattern>
+            <http-method>GET</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <login-config>
+        <auth-method>BASIC</auth-method>
+        <realm-name>default</realm-name>
+    </login-config>
+
+    <security-role>
+        <role-name>admin</role-name>
+    </security-role>
+
+</web-app>
